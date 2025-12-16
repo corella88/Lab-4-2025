@@ -3,8 +3,11 @@ package functions;
 import java.io.Serializable;
 
 public class LinkedListTabulatedFunction implements TabulatedFunction, Serializable {
+
+    private static final long serialVersionUID = 1L;
+    
     // Внутренний класс для узла списка
-    private static class FunctionNode {
+    private static class FunctionNode implements Serializable{
         FunctionPoint point;
         FunctionNode prev;
         FunctionNode next;
@@ -15,10 +18,8 @@ public class LinkedListTabulatedFunction implements TabulatedFunction, Serializa
     }
 
     private FunctionNode head; // Голова списка (не содержит данных)
-
     private FunctionNode lastAccessedNode; // Для оптимизации
     private int lastAccessedIndex;
-
     private int pointsCount;
     
     private static final double EPSILON = 1e-10;
@@ -33,19 +34,15 @@ public class LinkedListTabulatedFunction implements TabulatedFunction, Serializa
     }
 
     private void initializeList() {
-        head = new FunctionNode(null);  // голова с null данными
-        head.prev = head;                     // замыкаем на себя
-        head.next = head;                     // замыкаем на себя
+        head = new FunctionNode(null);
+        head.prev = head;
+        head.next = head;
         pointsCount = 0;
-
         lastAccessedNode = head;
         lastAccessedIndex = -1;
     }
 
-    // Конструктор без параметров ДЛЯ EXTERNALIZABLE
-    public LinkedListTabulatedFunction() {
-        initializeList(); // инициализируем пустой список
-    }
+
     
     public LinkedListTabulatedFunction(double leftX, double rightX, int pointsCount) {
         if (leftX >= rightX) {
@@ -56,11 +53,10 @@ public class LinkedListTabulatedFunction implements TabulatedFunction, Serializa
         }
 
         initializeList();
-
         double step = (rightX - leftX) / (pointsCount - 1);
         for (int i = 0; i < pointsCount; i++) {
             double x = leftX + i * step;
-            addNodeToTail().point = new FunctionPoint(x, 0);  // пока значения Y = 0
+            addNodeToTail().point = new FunctionPoint(x, 0);
         }
     }
     
@@ -73,7 +69,6 @@ public class LinkedListTabulatedFunction implements TabulatedFunction, Serializa
         }
         
         initializeList();
-
         double step = (rightX - leftX) / (values.length - 1);
         for (int i = 0; i < values.length; i++) {
             double x = leftX + i * step;
@@ -82,12 +77,10 @@ public class LinkedListTabulatedFunction implements TabulatedFunction, Serializa
     }
 
     public LinkedListTabulatedFunction(FunctionPoint[] points) {
-        // Проверка количества точек
         if (points.length < 2) {
             throw new IllegalArgumentException("Количество точек должно быть не менее 2");
         }
         
-        // Проверка упорядоченности по X
         for (int i = 1; i < points.length; i++) {
             if (points[i].getX() <= points[i - 1].getX()) {
                 throw new IllegalArgumentException("Точки должны быть строго упорядочены по возрастанию X");
@@ -95,8 +88,6 @@ public class LinkedListTabulatedFunction implements TabulatedFunction, Serializa
         }
         
         initializeList();
-        
-        // Добавляем все точки в список (с созданием копий для инкапсуляции)
         for (FunctionPoint point : points) {
             addNodeToTail().point = new FunctionPoint(point);
         }

@@ -402,56 +402,130 @@ public class Main {
         System.out.println("=== ЗАДАНИЕ 9: СЕРИАЛИЗАЦИЯ ===");
         
         try {
+            // Создаем тестовые функции для проверки ln(exp(x))
             functions.basic.Exp exp = new functions.basic.Exp();
             functions.basic.Log log = new functions.basic.Log(Math.E);
             functions.Function logOfExp = functions.Functions.composition(log, exp);
             
-            functions.TabulatedFunction tabulatedFunc = functions.TabulatedFunctions.tabulate(logOfExp, 0, 10, 11);
+            System.out.println("1. ТЕСТИРОВАНИЕ ln(exp(x)) НА [0, 1]:");
+            System.out.println("   x\t\tТеоретическое\tФактическое\tРазница");
             
-            System.out.println("Исходная функция ln(exp(x)) на [0, 10]:");
-            for (int i = 0; i < tabulatedFunc.getPointsCount(); i++) {
-                functions.FunctionPoint point = tabulatedFunc.getPoint(i);
-                System.out.printf("  [%d] x=%.1f, y=%.6f%n", i, point.getX(), point.getY());
+            // Тестируем значения от 0 до 1 с большей точностью
+            for (double x = 0; x <= 1.0; x += 0.1) {
+                double theoretical = x;
+                double actual = logOfExp.getFunctionValue(x);
+                double diff = Math.abs(theoretical - actual);
+                String diffStr = (diff < 1e-10) ? "< 1e-10" : String.format("%.10f", diff);
+                System.out.printf("   %.1f\t\t%.6f\t%.6f\t%s%n", 
+                    x, theoretical, actual, diffStr);
             }
             
-            System.out.println("\n1. СЕРИАЛИЗАЦИЯ С Serializable:");
-            testSerialization(tabulatedFunc, "function_serializable.ser");
-            
-            System.out.println("\n2. СЕРИАЛИЗАЦИЯ С Externalizable:");
-            testSerialization(tabulatedFunc, "function_externalizable.ser");
-            
-            System.out.println("\n3. СРАВНЕНИЕ ФАЙЛОВ:");
-            File serializableFile = new File("function_serializable.ser");
-            File externalizableFile = new File("function_externalizable.ser");
-            File textFile = new File("exp_function.txt");
-            File binaryFile = new File("log_function.bin");
-            
-            System.out.println("   Serializable: " + serializableFile.length() + " байт");
-            System.out.println("   Externalizable: " + externalizableFile.length() + " байт");
-            System.out.println("   Текстовый: " + textFile.length() + " байт");
-            System.out.println("   Бинарный: " + binaryFile.length() + " байт");
-            
-            System.out.println("\n4. СРАВНЕНИЕ ЗНАЧЕНИЙ ПОСЛЕ ДЕСЕРИАЛИЗАЦИИ:");
-            functions.TabulatedFunction serFunc, extFunc;
-            
-            try (ObjectInputStream in = new ObjectInputStream(new FileInputStream("function_serializable.ser"))) {
-                serFunc = (functions.TabulatedFunction) in.readObject();
+            // Особый случай x = 0
+            System.out.println("\n   Проверка x = 0:");
+            double resultAtZero = logOfExp.getFunctionValue(0);
+            System.out.printf("   ln(exp(0)) = %.10f (ожидалось 0.0000000000)%n", resultAtZero);
+            System.out.printf("   Погрешность: %.10f%n", Math.abs(resultAtZero));
+            if (Double.isNaN(resultAtZero)) {
+                System.out.println("   ВНИМАНИЕ: ln(exp(0)) = NaN! Нужно исправить класс Log!");
             }
             
-            try (ObjectInputStream in = new ObjectInputStream(new FileInputStream("function_externalizable.ser"))) {
-                extFunc = (functions.TabulatedFunction) in.readObject();
+            // Создаем одинаковые данные для обеих функций
+            System.out.println("\n2. ПОДГОТОВКА ДАННЫХ ДЛЯ СЕРИАЛИЗАЦИИ:");
+            functions.FunctionPoint[] testPoints = new functions.FunctionPoint[6];
+            for (int i = 0; i < 6; i++) {
+                double x = i * 2.0; // 0, 2, 4, 6, 8, 10
+                double y = logOfExp.getFunctionValue(x);
+                testPoints[i] = new functions.FunctionPoint(x, y);
+                System.out.printf("   Точка %d: x=%.1f, y=%.6f (ln(e^%.1f)=%.1f)%n", 
+                    i, x, y, x, x);
             }
             
-            System.out.println("   x\t\tИсходная\tSerializable\tExternalizable");
-            for (double x = 0; x <= 10; x += 1) {
-                double original = tabulatedFunc.getFunctionValue(x);
-                double serValue = serFunc.getFunctionValue(x);
-                double extValue = extFunc.getFunctionValue(x);
-                System.out.printf("   %.0f\t\t%.6f\t%.6f\t%.6f%n", x, original, serValue, extValue);
+            System.out.println("\n3. СЕРИАЛИЗАЦИЯ LinkedListTabulatedFunction (Serializable):");
+            functions.TabulatedFunction linkedListFunc = new functions.LinkedListTabulatedFunction(testPoints);
+            System.out.println("   Тип функции: " + linkedListFunc.getClass().getSimpleName());
+            System.out.println("   Реализует Serializable: " + (linkedListFunc instanceof java.io.Serializable));
+            System.out.println("   Реализует Externalizable: " + (linkedListFunc instanceof java.io.Externalizable));
+            
+            // Тестируем сериализацию
+            long startTime = System.nanoTime();
+            try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream("linkedlist_serializable.ser"))) {
+                out.writeObject(linkedListFunc);
             }
+            long serializableWriteTime = System.nanoTime() - startTime;
+            
+            functions.TabulatedFunction deserializedLinkedList;
+            startTime = System.nanoTime();
+            try (ObjectInputStream in = new ObjectInputStream(new FileInputStream("linkedlist_serializable.ser"))) {
+                deserializedLinkedList = (functions.TabulatedFunction) in.readObject();
+            }
+            long serializableReadTime = System.nanoTime() - startTime;
+            
+            File serializableFile = new File("linkedlist_serializable.ser");
+            System.out.println("   Размер файла: " + serializableFile.length() + " байт");
+            System.out.println("   Время записи: " + (serializableWriteTime / 1000) + " мкс");
+            System.out.println("   Время чтения: " + (serializableReadTime / 1000) + " мкс");
+            System.out.println("   Данные корректны: " + compareFunctions(linkedListFunc, deserializedLinkedList));
+            
+            System.out.println("\n4. СЕРИАЛИЗАЦИЯ ArrayTabulatedFunction (Externalizable):");
+            functions.TabulatedFunction arrayFunc = new functions.ArrayTabulatedFunction(testPoints);
+            System.out.println("   Тип функции: " + arrayFunc.getClass().getSimpleName());
+            System.out.println("   Реализует Serializable: " + (arrayFunc instanceof java.io.Serializable));
+            System.out.println("   Реализует Externalizable: " + (arrayFunc instanceof java.io.Externalizable));
+            
+            // Тестируем сериализацию
+            startTime = System.nanoTime();
+            try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream("array_externalizable.ser"))) {
+                out.writeObject(arrayFunc);
+            }
+            long externalizableWriteTime = System.nanoTime() - startTime;
+            
+            functions.TabulatedFunction deserializedArray;
+            startTime = System.nanoTime();
+            try (ObjectInputStream in = new ObjectInputStream(new FileInputStream("array_externalizable.ser"))) {
+                deserializedArray = (functions.TabulatedFunction) in.readObject();
+            }
+            long externalizableReadTime = System.nanoTime() - startTime;
+            
+            File externalizableFile = new File("array_externalizable.ser");
+            System.out.println("   Размер файла: " + externalizableFile.length() + " байт");
+            System.out.println("   Время записи: " + (externalizableWriteTime / 1000) + " мкс");
+            System.out.println("   Время чтения: " + (externalizableReadTime / 1000) + " мкс");
+            System.out.println("   Данные корректны: " + compareFunctions(arrayFunc, deserializedArray));
+            
+            System.out.println("\n5. СРАВНИТЕЛЬНЫЙ АНАЛИЗ:");
+            System.out.println("   Параметр\t\t\tLinkedList (Serializable)\tArray (Externalizable)");
+            System.out.println("   ---------------------------------------------------------------------------------");
+            System.out.printf("   Размер файла (байт)\t\t%d\t\t\t\t%d%n", 
+                serializableFile.length(), externalizableFile.length());
+            System.out.printf("   Время записи (мкс)\t\t%d\t\t\t\t%d%n", 
+                serializableWriteTime / 1000, externalizableWriteTime / 1000);
+            System.out.printf("   Время чтения (мкс)\t\t%d\t\t\t\t%d%n", 
+                serializableReadTime / 1000, externalizableReadTime / 1000);
+            double sizeReduction = 100.0 * (serializableFile.length() - externalizableFile.length()) / serializableFile.length();
+            System.out.printf("   Экономия места\t\t-\t\t\t\t%.1f%%%n", sizeReduction);
+            
+            System.out.println("\n6. ПРОВЕРКА ДАННЫХ ПОСЛЕ ДЕСЕРИАЛИЗАЦИИ:");
+            System.out.println("   Все точки должны сохранить значения (ln(e^x) = x):");
+            System.out.println("   Индекс\tИсходный X\tLinkedList Y\tArray Y\t\tКорректно?");
+            
+            boolean allCorrect = true;
+            for (int i = 0; i < testPoints.length; i++) {
+                double expectedX = testPoints[i].getX();
+                double linkedListY = deserializedLinkedList.getFunctionValue(expectedX);
+                double arrayY = deserializedArray.getFunctionValue(expectedX);
+                boolean linkedListCorrect = Math.abs(linkedListY - expectedX) < 1e-6;
+                boolean arrayCorrect = Math.abs(arrayY - expectedX) < 1e-6;
+                allCorrect = allCorrect && linkedListCorrect && arrayCorrect;
+                
+                System.out.printf("   %d\t\t%.1f\t\t%.6f\t%.6f\t%s%n", 
+                    i, expectedX, linkedListY, arrayY, 
+                    (linkedListCorrect && arrayCorrect) ? "ДА" : "НЕТ");
+            }
+            
             
         } catch (Exception e) {
             System.out.println("Ошибка: " + e.getMessage());
+            e.printStackTrace();
         }
         System.out.println();
     }

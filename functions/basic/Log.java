@@ -6,7 +6,7 @@ public class Log implements Function {
     private double base;
     
     public Log(double base) {
-        if (base <= 0 || base == 1) {
+        if (base <= 0 || Math.abs(base - 1.0) < 1e-10) {
             throw new IllegalArgumentException("Основание логарифма должно быть > 0 и ≠ 1");
         }
         this.base = base;
@@ -21,9 +21,22 @@ public class Log implements Function {
     }
     
     public double getFunctionValue(double x) {
-        if (x <= 0) {
-            return Double.NaN; // Логарифм не определен для x <= 0
+        // Используем машинный эпсилон для сравнения
+        if (x < -1e-10) { // x < 0
+            return Double.NaN;
         }
+        
+        // x близко к 0 или 0
+        if (Math.abs(x) < 1e-10) {
+            return Double.NEGATIVE_INFINITY;
+        }
+        
+        // x близко к 1
+        if (Math.abs(x - 1.0) < 1e-10) {
+            return 0.0;
+        }
+        
+        // Обычный случай
         return Math.log(x) / Math.log(base);
     }
 }

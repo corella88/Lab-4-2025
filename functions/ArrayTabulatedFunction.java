@@ -7,6 +7,8 @@ import java.io.ObjectOutput;
 import java.io.Serializable;
 
 public class ArrayTabulatedFunction implements TabulatedFunction, Serializable, Externalizable {
+    private static final long serialVersionUID = 1L;
+    
     private FunctionPoint[] points;
     private int pointsCount;
 

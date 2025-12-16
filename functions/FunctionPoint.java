@@ -7,6 +7,8 @@ import java.io.ObjectOutput;
 import java.io.Serializable;
 
 public class FunctionPoint implements Serializable, Externalizable {
+    private static final long serialVersionUID = 1L;
+    
     private double x;
     private double y;
 
