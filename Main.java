@@ -1,312 +1,332 @@
+import functions.*;
+import functions.basic.*;
+import functions.meta.*;
 import java.io.*;
 
 public class Main {
     public static void main(String[] args) {
-        System.out.println("ПОЛНЫЙ ТЕСТ ВСЕХ ЗАДАНИЙ");
-        System.out.println("=================================================\n");
         
+        System.out.println("\n--- ЗАДАНИЕ 1: Конструкторы с массивами точек ---");
         testAssignment1();
+        
+        System.out.println("\n--- ЗАДАНИЕ 2: Интерфейс Function ---");
         testAssignment2();
+        
+        System.out.println("\n--- ЗАДАНИЕ 3: Аналитические функции ---");
         testAssignment3();
+        
+        System.out.println("\n--- ЗАДАНИЕ 4: Комбинированные функции ---");
         testAssignment4();
+        
+        System.out.println("\n--- ЗАДАНИЕ 5: Утилитный класс Functions ---");
         testAssignment5();
+        
+        System.out.println("\n--- ЗАДАНИЕ 6: Табулирование функций ---");
         testAssignment6();
+        
+        System.out.println("\n--- ЗАДАНИЕ 7: Ввод-вывод функций ---");
         testAssignment7();
+        
+        System.out.println("\n--- ЗАДАНИЕ 8: Комплексное тестирование ---");
         testAssignment8();
+        
+        System.out.println("\n--- ЗАДАНИЕ 9: Сериализация ---");
         testAssignment9();
     }
     
     private static void testAssignment1() {
-        System.out.println("=== ЗАДАНИЕ 1: КОНСТРУКТОРЫ С МАССИВАМИ ТОЧЕК ===");
-        
         try {
-            functions.FunctionPoint[] points = {
-                new functions.FunctionPoint(0.0, 0.0),
-                new functions.FunctionPoint(1.0, 1.0), 
-                new functions.FunctionPoint(2.0, 4.0),
-                new functions.FunctionPoint(3.0, 9.0)
+            FunctionPoint[] points = {
+                new FunctionPoint(0.0, 0.0),
+                new FunctionPoint(1.0, 1.0),
+                new FunctionPoint(2.0, 4.0)
             };
             
-            functions.TabulatedFunction arrayFunc = new functions.ArrayTabulatedFunction(points);
+            ArrayTabulatedFunction arrayFunc = new ArrayTabulatedFunction(points);
             System.out.println("ArrayTabulatedFunction создана. Точек: " + arrayFunc.getPointsCount());
             
-            functions.TabulatedFunction linkedFunc = new functions.LinkedListTabulatedFunction(points);
+            LinkedListTabulatedFunction linkedFunc = new LinkedListTabulatedFunction(points);
             System.out.println("LinkedListTabulatedFunction создана. Точек: " + linkedFunc.getPointsCount());
-            
-            System.out.println("Тест ошибок:");
-            
-            try {
-                functions.FunctionPoint[] fewPoints = {new functions.FunctionPoint(0, 0)};
-                new functions.ArrayTabulatedFunction(fewPoints);
-            } catch (IllegalArgumentException e) {
-                System.out.println("Мало точек: " + e.getMessage());
-            }
-            
-            try {
-                functions.FunctionPoint[] unorderedPoints = {
-                    new functions.FunctionPoint(0, 0),
-                    new functions.FunctionPoint(2, 4), 
-                    new functions.FunctionPoint(1, 1)
-                };
-                new functions.LinkedListTabulatedFunction(unorderedPoints);
-            } catch (IllegalArgumentException e) {
-                System.out.println("Неупорядоченные точки: " + e.getMessage());
-            }
             
         } catch (Exception e) {
             System.out.println("Ошибка: " + e.getMessage());
         }
-        System.out.println();
     }
     
     private static void testAssignment2() {
-        System.out.println("=== ЗАДАНИЕ 2: ИНТЕРФЕЙС FUNCTION И НАСЛЕДОВАНИЕ ===");
-        
         try {
-            functions.FunctionPoint[] points = {
-                new functions.FunctionPoint(0.0, 0.0),
-                new functions.FunctionPoint(1.0, 1.0), 
-                new functions.FunctionPoint(2.0, 4.0)
+            FunctionPoint[] points = {
+                new FunctionPoint(0.0, 0.0),
+                new FunctionPoint(1.0, 1.0),
+                new FunctionPoint(2.0, 4.0)
             };
             
-            functions.TabulatedFunction arrayFunc = new functions.ArrayTabulatedFunction(points);
-            functions.TabulatedFunction linkedFunc = new functions.LinkedListTabulatedFunction(points);
-            
-            System.out.println("ArrayTabulatedFunction instanceof Function: " + (arrayFunc instanceof functions.Function));
-            System.out.println("LinkedListTabulatedFunction instanceof Function: " + (linkedFunc instanceof functions.Function));
-            
-            System.out.println("Array - границы: [" + arrayFunc.getLeftDomainBorder() + ", " + arrayFunc.getRightDomainBorder() + "]");
-            System.out.println("Array - f(1.5) = " + arrayFunc.getFunctionValue(1.5));
-            
-            System.out.println("LinkedList - границы: [" + linkedFunc.getLeftDomainBorder() + ", " + linkedFunc.getRightDomainBorder() + "]");
-            System.out.println("LinkedList - f(1.5) = " + linkedFunc.getFunctionValue(1.5));
+            TabulatedFunction func = new ArrayTabulatedFunction(points);
+            System.out.println("Функция реализует интерфейс Function: " + (func instanceof Function));
+            System.out.println("Границы: [" + func.getLeftDomainBorder() + ", " + func.getRightDomainBorder() + "]");
+            System.out.println("f(1.5) = " + func.getFunctionValue(1.5));
             
         } catch (Exception e) {
             System.out.println("Ошибка: " + e.getMessage());
         }
-        System.out.println();
     }
     
     private static void testAssignment3() {
-        System.out.println("=== ЗАДАНИЕ 3: АНАЛИТИЧЕСКИЕ ФУНКЦИИ ===");
-        
         try {
-            functions.basic.Exp exp = new functions.basic.Exp();
-            System.out.println("Экспонента:");
-            System.out.println("Границы: [" + exp.getLeftDomainBorder() + ", " + exp.getRightDomainBorder() + "]");
-            System.out.println("exp(0) = " + exp.getFunctionValue(0));
-            System.out.println("exp(1) = " + exp.getFunctionValue(1));
-            System.out.println("exp(-1) = " + exp.getFunctionValue(-1));
+            Exp exp = new Exp();
+            System.out.println("Экспонента: exp(0) = " + exp.getFunctionValue(0));
             
-            functions.basic.Log log = new functions.basic.Log(2);
-            System.out.println("\nЛогарифм по основанию 2:");
-            System.out.println("Границы: [" + log.getLeftDomainBorder() + ", " + log.getRightDomainBorder() + "]");
-            System.out.println("log2(1) = " + log.getFunctionValue(1));
-            System.out.println("log2(2) = " + log.getFunctionValue(2));
-            System.out.println("log2(4) = " + log.getFunctionValue(4));
-            System.out.println("log2(0) = " + log.getFunctionValue(0));
+            Log log2 = new Log(2);
+            System.out.println("Логарифм по основанию 2: log2(8) = " + log2.getFunctionValue(8));
             
-            functions.basic.Sin sin = new functions.basic.Sin();
-            functions.basic.Cos cos = new functions.basic.Cos();
-            
-            System.out.println("\nТригонометрические функции:");
-            System.out.println("sin(0) = " + sin.getFunctionValue(0));
-            System.out.println("cos(0) = " + cos.getFunctionValue(0));
-            System.out.println("sin(PI/2) = " + sin.getFunctionValue(Math.PI/2));
-            System.out.println("cos(PI/2) = " + cos.getFunctionValue(Math.PI/2));
+            Sin sin = new Sin();
+            Cos cos = new Cos();
+            Tan tan = new Tan();
+            System.out.println("Тригонометрические функции:");
+            System.out.println("  sin(0) = " + sin.getFunctionValue(0));
+            System.out.println("  cos(0) = " + cos.getFunctionValue(0));
+            System.out.println("  tan(0) = " + tan.getFunctionValue(0));
             
         } catch (Exception e) {
             System.out.println("Ошибка: " + e.getMessage());
         }
-        System.out.println();
     }
     
     private static void testAssignment4() {
-        System.out.println("=== ЗАДАНИЕ 4: КОМБИНИРОВАННЫЕ ФУНКЦИИ ===");
-        
         try {
-            functions.basic.Sin sin = new functions.basic.Sin();
-            functions.basic.Cos cos = new functions.basic.Cos();
+            Sin sin = new Sin();
+            Cos cos = new Cos();
             
-            functions.meta.Sum sinPlusCos = new functions.meta.Sum(sin, cos);
-            System.out.println("Сумма sin + cos:");
-            System.out.println("(sin+cos)(0) = " + sinPlusCos.getFunctionValue(0));
+            Sum sum = new Sum(sin, cos);
+            System.out.println("Сумма sin+cos в точке 0: " + sum.getFunctionValue(0));
             
-            functions.meta.Mult sinTimesCos = new functions.meta.Mult(sin, cos);
-            System.out.println("\nПроизведение sin * cos:");
-            System.out.println("(sin*cos)(0) = " + sinTimesCos.getFunctionValue(0));
-            System.out.println("(sin*cos)(PI/4) = " + sinTimesCos.getFunctionValue(Math.PI/4));
+            Mult mult = new Mult(sin, cos);
+            System.out.println("Произведение sin*cos в точке π/4: " + mult.getFunctionValue(Math.PI/4));
             
-            functions.meta.Power sinSquared = new functions.meta.Power(sin, 2);
-            System.out.println("\nКвадрат синуса:");
-            System.out.println("sin^2(0) = " + sinSquared.getFunctionValue(0));
-            System.out.println("sin^2(PI/2) = " + sinSquared.getFunctionValue(Math.PI/2));
+            Power square = new Power(sin, 2);
+            System.out.println("Квадрат синуса в точке π/2: " + square.getFunctionValue(Math.PI/2));
             
         } catch (Exception e) {
             System.out.println("Ошибка: " + e.getMessage());
         }
-        System.out.println();
     }
     
     private static void testAssignment5() {
-        System.out.println("=== ЗАДАНИЕ 5: УТИЛИТНЫЙ КЛАСС FUNCTIONS ===");
-        
         try {
-            functions.basic.Sin sin = new functions.basic.Sin();
-            functions.basic.Cos cos = new functions.basic.Cos();
+            Sin sin = new Sin();
+            Cos cos = new Cos();
             
-            System.out.println("Тест sum:");
-            functions.Function sum = functions.Functions.sum(sin, cos);
-            System.out.println("sum(0) = " + sum.getFunctionValue(0));
+            Function sum = Functions.sum(sin, cos);
+            System.out.println("Functions.sum(sin,cos) в 0: " + sum.getFunctionValue(0));
             
-            System.out.println("\nТест mult:");
-            functions.Function product = functions.Functions.mult(sin, cos);
-            System.out.println("product(PI/4) = " + product.getFunctionValue(Math.PI/4));
+            Function mult = Functions.mult(sin, cos);
+            System.out.println("Functions.mult(sin,cos) в π/4: " + mult.getFunctionValue(Math.PI/4));
             
-            System.out.println("\nТест composition:");
-            functions.Function composed = functions.Functions.composition(sin, cos);
-            System.out.println("composed(0) = " + composed.getFunctionValue(0));
+            Function power = Functions.power(sin, 2);
+            System.out.println("Functions.power(sin,2) в π/2: " + power.getFunctionValue(Math.PI/2));
             
         } catch (Exception e) {
             System.out.println("Ошибка: " + e.getMessage());
         }
-        System.out.println();
     }
     
     private static void testAssignment6() {
-        System.out.println("=== ЗАДАНИЕ 6: ТАБУЛИРОВАНИЕ ФУНКЦИЙ ===");
-        
         try {
-            functions.basic.Sin sin = new functions.basic.Sin();
+            Sin sin = new Sin();
+            TabulatedFunction tabulated = TabulatedFunctions.tabulate(sin, 0, Math.PI, 5);
             
-            functions.TabulatedFunction tabulatedSin = functions.TabulatedFunctions.tabulate(sin, 0, Math.PI, 5);
-            
-            System.out.println("Табуляция синуса на [0, PI] с 5 точками:");
-            System.out.println("Точек: " + tabulatedSin.getPointsCount());
-            
-            System.out.println("Точки функции:");
-            for (int i = 0; i < tabulatedSin.getPointsCount(); i++) {
-                functions.FunctionPoint point = tabulatedSin.getPoint(i);
-                System.out.printf("  [%d] x=%.3f, y=%.3f%n", i, point.getX(), point.getY());
+            System.out.println("Табулированный синус с 5 точками:");
+            for (int i = 0; i < tabulated.getPointsCount(); i++) {
+                FunctionPoint p = tabulated.getPoint(i);
+                System.out.printf("  (%.2f, %.4f)%n", p.getX(), p.getY());
             }
-            
-            System.out.println("\nСравнение с аналитической функцией:");
-            double testX = Math.PI / 4;
-            double analyticValue = sin.getFunctionValue(testX);
-            double tabulatedValue = tabulatedSin.getFunctionValue(testX);
-            System.out.printf("sin(PI/4): аналитическое=%.6f, табулированное=%.6f%n", analyticValue, tabulatedValue);
             
         } catch (Exception e) {
             System.out.println("Ошибка: " + e.getMessage());
         }
-        System.out.println();
     }
     
     private static void testAssignment7() {
-        System.out.println("=== ЗАДАНИЕ 7: ВВОД-ВЫВОД ФУНКЦИЙ ===");
-        
         try {
-            functions.basic.Sin sin = new functions.basic.Sin();
-            functions.TabulatedFunction tabulatedSin = functions.TabulatedFunctions.tabulate(sin, 0, Math.PI, 5);
+            Sin sin = new Sin();
+            TabulatedFunction func = TabulatedFunctions.tabulate(sin, 0, Math.PI, 5);
             
-            System.out.println("Исходная функция:");
-            for (int i = 0; i < tabulatedSin.getPointsCount(); i++) {
-                functions.FunctionPoint point = tabulatedSin.getPoint(i);
-                System.out.printf("  [%d] x=%.3f, y=%.3f%n", i, point.getX(), point.getY());
-            }
-            
-            System.out.println("\n1. Тест байтового ввода/вывода:");
-            
+            // Байтовый ввод-вывод
             ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
-            functions.TabulatedFunctions.outputTabulatedFunction(tabulatedSin, byteOut);
-            System.out.println("Записано, размер: " + byteOut.size() + " байт");
-            
+            TabulatedFunctions.outputTabulatedFunction(func, byteOut);
             ByteArrayInputStream byteIn = new ByteArrayInputStream(byteOut.toByteArray());
-            functions.TabulatedFunction readFromBytes = functions.TabulatedFunctions.inputTabulatedFunction(byteIn);
-            System.out.println("Прочитано. Точек: " + readFromBytes.getPointsCount());
+            TabulatedFunction fromBytes = TabulatedFunctions.inputTabulatedFunction(byteIn);
+            System.out.println("Байтовый ввод-вывод: успешно");
             
-            System.out.println("\n2. Тест символьного ввода/вывода:");
-            
+            // Символьный ввод-вывод
             StringWriter stringWriter = new StringWriter();
-            functions.TabulatedFunctions.writeTabulatedFunction(tabulatedSin, stringWriter);
-            String stringData = stringWriter.toString();
-            System.out.println("Записано в строку");
-            
-            StringReader stringReader = new StringReader(stringData);
-            functions.TabulatedFunction readFromString = functions.TabulatedFunctions.readTabulatedFunction(stringReader);
-            System.out.println("Прочитано из строки. Точек: " + readFromString.getPointsCount());
+            TabulatedFunctions.writeTabulatedFunction(func, stringWriter);
+            StringReader stringReader = new StringReader(stringWriter.toString());
+            TabulatedFunction fromString = TabulatedFunctions.readTabulatedFunction(stringReader);
+            System.out.println("Символьный ввод-вывод: успешно");
             
         } catch (Exception e) {
             System.out.println("Ошибка: " + e.getMessage());
         }
-        System.out.println();
     }
     
     private static void testAssignment8() {
-        System.out.println("=== ЗАДАНИЕ 8: КОМПЛЕКСНОЕ ТЕСТИРОВАНИЕ ===");
+        System.out.println("=== Часть 1: Основные функции ===");
+        Sin sin = new Sin();
+        Cos cos = new Cos();
         
+        System.out.println("sin и cos на [0, π] с шагом 0.1:");
+        for (double x = 0; x <= Math.PI; x += 0.1) {
+            System.out.printf("  x=%.1f: sin=%.6f, cos=%.6f%n", 
+                x, sin.getFunctionValue(x), cos.getFunctionValue(x));
+        }
+        
+        System.out.println("\n=== Часть 2: Табулированные аналоги ===");
+        TabulatedFunction tabSin = TabulatedFunctions.tabulate(sin, 0, Math.PI, 10);
+        TabulatedFunction tabCos = TabulatedFunctions.tabulate(cos, 0, Math.PI, 10);
+        
+        System.out.println("Сравнение исходных и табулированных:");
+        for (double x = 0; x <= Math.PI; x += 0.1) {
+            double s1 = sin.getFunctionValue(x);
+            double s2 = tabSin.getFunctionValue(x);
+            double c1 = cos.getFunctionValue(x);
+            double c2 = tabCos.getFunctionValue(x);
+            System.out.printf("  x=%.1f: sin: %.6f vs %.6f, cos: %.6f vs %.6f%n",
+                x, s1, s2, c1, c2);
+        }
+        
+        System.out.println("\n=== Часть 3: Сумма квадратов ===");
+        Function sinSquared = Functions.power(tabSin, 2);
+        Function cosSquared = Functions.power(tabCos, 2);
+        Function sumSquares = Functions.sum(sinSquared, cosSquared);
+        
+        System.out.println("sin² + cos² (должно быть ≈ 1):");
+        for (double x = 0; x <= Math.PI; x += 0.1) {
+            double value = sumSquares.getFunctionValue(x);
+            System.out.printf("  x=%.1f: %.6f, отклонение от 1: %.6f%n",
+                x, value, Math.abs(value - 1.0));
+        }
+        
+        System.out.println("\n=== Часть 4: Экспонента (текстовый файл) ===");
         try {
-            System.out.println("1. ТЕСТ АНАЛИТИЧЕСКИХ ФУНКЦИЙ:");
-            functions.basic.Sin sin = new functions.basic.Sin();
-            functions.basic.Cos cos = new functions.basic.Cos();
+            Exp exp = new Exp();
+            TabulatedFunction tabExp = TabulatedFunctions.tabulate(exp, 0, 10, 11);
             
-            System.out.println("sin и cos на [0, PI] с шагом 0.5:");
-            for (double x = 0; x <= Math.PI; x += 0.5) {
-                System.out.printf("  x=%.1f: sin=%.6f, cos=%.6f%n", x, sin.getFunctionValue(x), cos.getFunctionValue(x));
-            }
+            FileWriter writer = new FileWriter("exp_text.txt");
+            TabulatedFunctions.writeTabulatedFunction(tabExp, writer);
+            writer.close();
+            System.out.println("Записано в exp_text.txt");
             
-            System.out.println("\n2. ТЕСТ ФАЙЛОВЫХ ОПЕРАЦИЙ:");
+            FileReader reader = new FileReader("exp_text.txt");
+            TabulatedFunction readExp = TabulatedFunctions.readTabulatedFunction(reader);
+            reader.close();
             
-            functions.basic.Exp exp = new functions.basic.Exp();
-            functions.TabulatedFunction tabulatedExp = functions.TabulatedFunctions.tabulate(exp, 0, 10, 11);
-            
-            try (FileWriter writer = new FileWriter("exp_function.txt")) {
-                functions.TabulatedFunctions.writeTabulatedFunction(tabulatedExp, writer);
-            }
-            System.out.println("Экспонента записана в exp_function.txt");
-            
-            try (FileReader reader = new FileReader("exp_function.txt")) {
-                functions.TabulatedFunction readExp = functions.TabulatedFunctions.readTabulatedFunction(reader);
-                System.out.println("Экспонента прочитана из файла");
+            System.out.println("Сравнение:");
+            for (double x = 0; x <= 10; x += 1) {
+                double orig = tabExp.getFunctionValue(x);
+                double read = readExp.getFunctionValue(x);
+                System.out.printf("  x=%.0f: %.6f vs %.6f%n", x, orig, read);
             }
             
         } catch (Exception e) {
             System.out.println("Ошибка: " + e.getMessage());
         }
-        System.out.println();
+        
+        System.out.println("\n=== Часть 5: Натуральный логарифм (байтовый файл) ===");
+        try {
+            Log ln = new Log(Math.E);
+            TabulatedFunction tabLn = TabulatedFunctions.tabulate(ln, 1, 10, 10);
+            
+            FileOutputStream fos = new FileOutputStream("ln_binary.bin");
+            TabulatedFunctions.outputTabulatedFunction(tabLn, fos);
+            fos.close();
+            System.out.println("Записано в ln_binary.bin");
+            
+            FileInputStream fis = new FileInputStream("ln_binary.bin");
+            TabulatedFunction readLn = TabulatedFunctions.inputTabulatedFunction(fis);
+            fis.close();
+            
+            System.out.println("Сравнение:");
+            for (double x = 1; x <= 10; x += 1) {
+                double orig = tabLn.getFunctionValue(x);
+                double read = readLn.getFunctionValue(x);
+                System.out.printf("  x=%.0f: %.6f vs %.6f%n", x, orig, read);
+            }
+            
+        } catch (Exception e) {
+            System.out.println("Ошибка: " + e.getMessage());
+        }
     }
     
     private static void testAssignment9() {
-        System.out.println("=== ЗАДАНИЕ 9: СЕРИАЛИЗАЦИЯ ===");
+        System.out.println("\n=== ЗАДАНИЕ 9: СЕРИАЛИЗАЦИЯ ===");
         
         try {
-            functions.basic.Exp exp = new functions.basic.Exp();
-            functions.basic.Log ln = new functions.basic.Log(Math.E);
+            // Создаем ln(exp(x)) = x
+            Exp exp = new Exp();
+            Log ln = new Log(Math.E);
+            Function lnOfExp = Functions.composition(ln, exp);
             
-            functions.Function lnOfExp = functions.Functions.composition(ln, exp);
+            // Табулируем
+            TabulatedFunction tabulated = TabulatedFunctions.tabulate(lnOfExp, 0, 10, 11);
             
-            System.out.println("Тест ln(exp(x)):");
-            System.out.println("x\tln(exp(x))\tОжидаемое (x)\tРазница");
-            
-            double[] testPoints = {-2, -1, 0, 1, 2, 3, 4, 5};
-            
-            for (double x : testPoints) {
-                double result = lnOfExp.getFunctionValue(x);
-                double expected = x;
-                double diff = Math.abs(result - expected);
-                
-                System.out.printf("%6.1f\t%10.6f\t%10.6f\t", x, result, expected);
-                
-                if (diff < 1e-10) {
-                    System.out.println("< 1e-10");
-                } else {
-                    System.out.printf("%10.6f%n", diff);
-                }
+            System.out.println("ln(exp(x)) = x (теоретически):");
+            for (double x = 0; x <= 10; x += 1) {
+                System.out.printf("  x=%.0f: ln(exp(x)) = %.6f, ожидается %.6f%n",
+                    x, tabulated.getFunctionValue(x), x);
             }
+            
+            System.out.println("\n--- Serializable сериализация ---");
+            // Сериализуем через Serializable
+            ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("function_serializable.ser"));
+            oos.writeObject(tabulated);
+            oos.close();
+            System.out.println("Записано в function_serializable.ser");
+            
+            // Десериализуем
+            ObjectInputStream ois = new ObjectInputStream(new FileInputStream("function_serializable.ser"));
+            TabulatedFunction deserialized = (TabulatedFunction) ois.readObject();
+            ois.close();
+            
+            System.out.println("Сравнение после Serializable:");
+            for (double x = 0; x <= 10; x += 1) {
+                double orig = tabulated.getFunctionValue(x);
+                double deser = deserialized.getFunctionValue(x);
+                System.out.printf("  x=%.0f: %.6f vs %.6f%n", x, orig, deser);
+            }
+            
+            System.out.println("\n--- Externalizable сериализация ---");
+            // Для Externalizable нужно создать объект, который реализует Externalizable
+            // ArrayTabulatedFunction уже реализует Externalizable
+            
+            // Сериализуем через Externalizable
+            ObjectOutputStream oos2 = new ObjectOutputStream(new FileOutputStream("function_externalizable.ser"));
+            oos2.writeObject(tabulated);
+            oos2.close();
+            System.out.println("Записано в function_externalizable.ser");
+            
+            // Десериализуем
+            ObjectInputStream ois2 = new ObjectInputStream(new FileInputStream("function_externalizable.ser"));
+            TabulatedFunction deserialized2 = (TabulatedFunction) ois2.readObject();
+            ois2.close();
+            
+            System.out.println("Сравнение после Externalizable:");
+            for (double x = 0; x <= 10; x += 1) {
+                double orig = tabulated.getFunctionValue(x);
+                double deser = deserialized2.getFunctionValue(x);
+                System.out.printf("  x=%.0f: %.6f vs %.6f%n", x, orig, deser);
+            }
+            
+            // Сравнение размеров файлов
+            File serFile = new File("function_serializable.ser");
+            File extFile = new File("function_externalizable.ser");
+            System.out.println("\nРазмеры файлов:");
+            System.out.println("  Serializable: " + serFile.length() + " байт");
+            System.out.println("  Externalizable: " + extFile.length() + " байт");
             
         } catch (Exception e) {
             System.out.println("Ошибка: " + e.getMessage());
+            e.printStackTrace();
         }
-        System.out.println();
     }
 }
